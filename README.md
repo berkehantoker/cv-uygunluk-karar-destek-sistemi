@@ -1,23 +1,17 @@
-Cv Uygunluk Karar Destek Sistemi
+# Cv Uygunluk Karar Destek Sistemi
 
-Bu proje, iş arayan adaylar ile işverenlerin beklentileri arasındaki dijital boşluğu veriye dayalı bir yöntemle doldurmayı amaçlamaktadır. Sistem, özgeçmişleri sadece bir dosya olarak okumakla kalmayıp, adayın hedeflediği pozisyona ne kadar yakın olduğunu gösteren dijital bir rehber görevi görür.
+Bu projenin temel amacı, iş arayan adaylar ile işverenlerin beklentileri arasındaki dijital boşluğu veriye dayalı bir yöntemle doldurmaktır. Sadece bir dosya okuma aracı değil; bir mühendis adayının veya profesyonelin, hedeflediği pozisyona ne kadar yakın olduğunu gösteren dijital bir rehber geliştirmeyi hedefliyoruz.
 
-Projenin Amacı ve Kapsamı
+## Projenin Amacı ve Kapsamı
+**Analiz:** PDF formatındaki özgeçmişlerin içeriği analiz edilerek, belirli bir iş tanımıyla olan anlamsal örtüşme düzeyi incelenir. [cite: 19]
+**Raporlama:** Kullanıcıya kişiselleştirilmiş bir uyumluluk raporu sunulacaktır. [cite: 19]
+**Verimlilik:** İşveren tarafında, yüzlerce başvuru arasından pozisyona teknik olarak en yakın profillerin hızlıca belirlenmesini sağlayarak zaman kaybını ve öznel hataları minimize etmeyi hedefler. 
 
--Proje, PDF formatındaki özgeçmişlerin içeriğini analiz ederek belirli bir iş tanımıyla olan anlamsal örtüşme düzeyini inceler.
+## Teknik Yaklaşım
+Sistemin temel çalışma prensibi, ham metin verilerini bilgisayarın işleyebileceği matematiksel modellere dönüştürmek üzerine kuruludur.Süreç şu dört ana aşamadan oluşacaktır: 
 
--Kullanıcılara kişiselleştirilmiş bir uyumluluk raporu sunulmasını sağlar.
+**Veri Edinme:** Python tabanlı **PyPDF2** kütüphanesi kullanılarak özgeçmişler dijital metne dönüştürülür. 
+**Metin Ön İşleme (NLP):** **NLTK** kütüphanesi ile noktalama işaretleri ve anlam taşımayan bağlaçlar temizlenerek veri standart hale getirilir. 
+**Vektörleştirme:** **Scikit-learn** kütüphanesindeki **TF-IDF** yöntemiyle metinler sayısal vektörlere dönüştürülür. 
+**Benzerlik Ölçümü:** Vektörler arasındaki anlamsal yakınlık **Kosinüs Benzerliği** algoritması kullanılarak hesaplanır. 
 
--Adayların geri bildirim eksikliğini gidermeyi ve işverenlerin aday belirleme süreçlerindeki zaman kaybını minimize etmeyi hedefler.
-
-Teknik Yaklaşım
-
-Sistem, ham metin verilerini matematiksel modellere dönüştürerek şu aşamalarla çalışır:
-
--Veri Edinme ve Metin Ayıklama: Python tabanlı PyPDF2 kütüphanesi ile PDF içerikleri dijital metne dönüştürülür.
-
--Metin Ön İşleme (NLP): NLTK kütüphanesi kullanılarak noktalama işaretleri ve anlam taşımayan bağlaçlar (ve, ile, de vb.) temizlenir, veriler standart hale getirilir.
-
--Vektörleştirme ve Benzerlik Ölçümü: Scikit-learn kütüphanesindeki TF-IDF yöntemiyle metinler sayısal vektörlere dönüştürülür. Ardından Kosinüs Benzerliği (Cosine Similarity) algoritması ile %0-100 arası uyumluluk skoru hesaplanır.
-
--Eksik Yetenek Analizi: Pandas kütüphanesi yardımıyla iş ilanındaki kritik anahtar kelimeler ile özgeçmiş karşılaştırılarak eksik beceriler raporlanır.
