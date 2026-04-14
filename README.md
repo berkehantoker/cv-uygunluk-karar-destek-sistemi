@@ -1,4 +1,5 @@
 Cv Uygunluk Karar Destek Sistemi
+
 Bu proje, iş arayan adaylar ile işverenlerin beklentileri arasındaki dijital boşluğu veriye dayalı bir yöntemle doldurmayı amaçlamaktadır. Sistem, özgeçmişleri sadece bir dosya olarak okumakla kalmayıp, adayın hedeflediği pozisyona ne kadar yakın olduğunu gösteren dijital bir rehber görevi görür.
 
 Projenin Amacı ve Kapsamı
