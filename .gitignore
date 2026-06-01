@@ -1,0 +1,15 @@
+# Python bytecode (Önbellek dosyaları)
+__pycache__/
+*.pyc
+
+# PyInstaller / Derleme çıktıları
+build/
+dist/
+*.spec
+
+# VS Code özel ayarları
+.vscode/
+
+# Sanal ortamlar
+venv/
+ENV/
