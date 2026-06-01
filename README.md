@@ -5,7 +5,7 @@ Bu proje, Python ile geliştirilmiş arayüzlü bir **CV - İş İlanı Uyum Ana
 1. **Metin Benzerliği Skoru**
 2. **Beceri Uyumu Skoru**
 
-Proje, Bursa Uludağ Üniversitesi Mühendislik Fakültesi Bilgisayar Mühendisliği Bölümü **Pythonla Programlamaya Giriş** dersi kapsamında hazırlanmıştır.
+Proje, Bursa Uludağ Üniversitesi Mühendislik Fakültesi Bilgisayar Mühendisliği Bölümü **Python Programlamaya Giriş** dersi kapsamında hazırlanmıştır.
 
 ---
 
@@ -44,61 +44,91 @@ Sistem, PDF formatındaki CV dosyasından metin çıkarır, iş ilanı metniyle 
 | QThread | Analizi arka planda çalıştırma |
 
 ---
+
 ## Proje Dosya Yapısı
 
-```text
 cv-uygunluk-karar-destek-sistemi/
-│
-├── main.py
-├── utils.py
-├── worker.py
-├── requirements.txt
-├── README.md
-├── .gitignore
-│
-└── docs/
-    └── Proje_Raporu_CV_Uygunluk_Karar_Destek_Sistemi.pdf
-Dosyaların Görevleri
-main.py: PyQt5 arayüzünü içerir. CV yükleme, iş ilanı girme ve sonuçları gösterme işlemleri burada yapılır.
-utils.py: PDF okuma, metin temizleme, TF-IDF hesaplama ve beceri eşleştirme fonksiyonlarını içerir.
-worker.py: Analizin arayüzü dondurmadan arka planda çalışmasını sağlar.
-Kurulum
+
+- main.py
+- utils.py
+- worker.py
+- requirements.txt
+- README.md
+- .gitignore
+- docs/
+  - Proje_Raporu_CV_Uygunluk_Karar_Destek_Sistemi.pdf
+
+---
+
+## Dosyaların Görevleri
+
+**main.py:** PyQt5 arayüzünü içerir. CV yükleme, iş ilanı girme ve sonuçları gösterme işlemleri burada yapılır.
+
+**utils.py:** PDF okuma, metin temizleme, TF-IDF hesaplama ve beceri eşleştirme fonksiyonlarını içerir.
+
+**worker.py:** Analizin arayüzü dondurmadan arka planda çalışmasını sağlar.
+
+---
+
+## Kurulum
 
 Projeyi bilgisayarınıza indirdikten sonra proje klasöründe terminal açın.
 
 Gerekli kütüphaneleri yüklemek için:
 
-pip install -r requirements.txt
-requirements.txt
-PyQt5
-PyPDF2
-pandas
-nltk
-scikit-learn
-Çalıştırma
+    pip install -r requirements.txt
+
+---
+
+## requirements.txt
+
+Projenin çalışması için gerekli kütüphaneler:
+
+- PyQt5
+- PyPDF2
+- pandas
+- nltk
+- scikit-learn
+
+---
+
+## Çalıştırma
 
 Programı çalıştırmak için:
 
-python main.py
+    python main.py
 
 Program açıldıktan sonra:
 
-PDF dosyasını yükleyin.
-İş ilanı metnini ilgili alana yazın veya yapıştırın.
-Analiz Başlat butonuna tıklayın.
-Sonuçları Sonuçlar sekmesinden görüntüleyin.
-Skorlar
-Metin Benzerliği Skoru: CV ve iş ilanı metinlerinin TF-IDF ve Cosine Similarity ile hesaplanan genel benzerlik skorudur.
-Beceri Uyumu Skoru: İş ilanında istenen teknik becerilerin kaç tanesinin CV’de bulunduğunu gösterir.
-Veritabanı Bilgisi
+1. PDF dosyasını yükleyin.
+2. İş ilanı metnini ilgili alana yazın veya yapıştırın.
+3. Analiz Başlat butonuna tıklayın.
+4. Sonuçları Sonuçlar sekmesinden görüntüleyin.
+
+---
+
+## Skorlar
+
+**Metin Benzerliği Skoru:** CV ve iş ilanı metinlerinin TF-IDF ve Cosine Similarity ile hesaplanan genel benzerlik skorudur.
+
+**Beceri Uyumu Skoru:** İş ilanında istenen teknik becerilerin kaç tanesinin CV’de bulunduğunu gösterir.
+
+---
+
+## Veritabanı Bilgisi
 
 Bu projede herhangi bir veritabanı kullanılmamıştır.
 
-Veri Seti Bilgisi
+---
+
+## Veri Seti Bilgisi
 
 Bu projede harici bir veri seti kullanılmamıştır. Testler örnek CV dosyaları ve örnek iş ilanı metinleri üzerinden gerçekleştirilmiştir.
 
-Grup Üyeleri
-Abdullah Seydi
-Osman Berkehan Toker
-Alihan Yalçın
+---
+
+## Grup Üyeleri
+
+- Abdullah Seydi
+- Osman Berkehan Toker
+- Alihan Yalçın
