@@ -1,4 +1,5 @@
+PyQt5
+PyPDF2
 pandas
-scikit-learn
-pypdf2
 nltk
+scikit-learn
