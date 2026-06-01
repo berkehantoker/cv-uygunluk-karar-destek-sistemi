@@ -55,8 +55,7 @@ cv-uygunluk-karar-destek-sistemi/
 - requirements.txt
 - README.md
 - .gitignore
-- docs/
-  - Proje_Raporu_CV_Uygunluk_Karar_Destek_Sistemi.pdf
+
 
 ---
 
