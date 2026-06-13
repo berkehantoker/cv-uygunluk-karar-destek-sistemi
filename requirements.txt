@@ -1,5 +1,6 @@
 PyQt5
-PyPDF2
-pandas
-nltk
+pdfplumber
 scikit-learn
+sentence-transformers
+pandas
+openpyxl
