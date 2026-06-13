@@ -1,389 +1,264 @@
 import sys
 import os
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QPushButton, QLabel, QTextEdit, QFileDialog, QProgressBar,
-    QTabWidget, QTableWidget, QTableWidgetItem, QMessageBox, QGroupBox
-)
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+                             QHBoxLayout, QTextEdit, QPushButton, QLabel, 
+                             QFileDialog, QProgressBar, QTableWidget, 
+                             QTableWidgetItem, QHeaderView, QMessageBox, QGroupBox)
+from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from worker import ProcessWorker
 
-# Diğer katmanlardaki gerekli yapıları temiz bir mimariyle içeri alıyoruz
-from utils import extract_text_from_pdf
-from worker import AnalysisWorker
-
-
-class ResumeMatcherApp(QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.cv_text = ""
-        self.job_text = ""
-        self.worker = None
-        self.results = None
-
-        self.init_ui()
-
-    def init_ui(self):
-        """Initialize user interface"""
-        self.setWindowTitle("Resume - Job Matching Sistemi")
-        self.setGeometry(100, 100, 1200, 800)
-        self.setStyleSheet(self.get_stylesheet())
-
-        # Main widget and layout
-        main_widget = QWidget()
-        self.setCentralWidget(main_widget)
-        layout = QVBoxLayout(main_widget)
-
-        # Title
-        title = QLabel("CV - İş İlanı Uyum Analiz Sistemi")
-        title.setFont(QFont("Segoe UI", 18, QFont.Bold))
-        title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("color: #ffffff; margin-bottom: 10px;")
-        layout.addWidget(title)
-
-        # Tabs
-        tabs = QTabWidget()
+        self.setWindowTitle("CV Uygunluk Karar Destek Sistemi - Hibrit Yapay Zeka")
+        self.resize(1100, 800) 
+        self.pdf_files = []
+        self.setup_ui()
         
-        # Tab 1: Upload and Job Description
-        tab1 = self.create_input_tab()
-        tabs.addTab(tab1, "Giriş (Input)")
+    def setup_ui(self):
+        # Sarı & Koyu Gri Modern Tema Entegrasyonu
+        self.setStyleSheet("""
+            QMainWindow { background-color: #1c1c1e; }
+            QWidget { font-family: 'Segoe UI', Arial, sans-serif; }
+            QLabel { color: #e5e5ea; font-size: 14px; font-weight: bold; }
+            
+            QGroupBox {
+                font-weight: bold;
+                font-size: 14px;
+                border: 1px solid #3a3a3c;
+                border-radius: 12px; 
+                margin-top: 25px;
+                padding-top: 20px;
+                background-color: #2c2c2e; 
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                subcontrol-position: top left;
+                left: 20px;
+                padding: 0 5px;
+                color: #ffcc00;
+                font-size: 15px;
+                letter-spacing: 1px;
+            }
+            
+            QTextEdit { 
+                background-color: #1c1c1e; 
+                color: #ffffff; 
+                border: 1px solid #3a3a3c; 
+                border-radius: 10px; 
+                padding: 12px; 
+                font-size: 13px;
+                selection-background-color: #ffcc00;
+                selection-color: #1c1c1e;
+            }
+            QTextEdit:focus { border: 1px solid #ffcc00; background-color: #242426; }
+            
+            QPushButton { 
+                background-color: #ffcc00; 
+                color: #1c1c1e; 
+                border: none; 
+                padding: 12px 20px; 
+                border-radius: 8px; 
+                font-weight: bold; 
+                font-size: 14px;
+            }
+            QPushButton:hover { background-color: #ffd633; }
+            QPushButton:pressed { background-color: #e6b800; }
+            QPushButton:disabled { background-color: #3a3a3c; color: #636366; }
+            
+            QProgressBar { 
+                border: none; 
+                border-radius: 4px; 
+                text-align: center; 
+                background-color: #2c2c2e;
+            }
+            QProgressBar::chunk { background-color: #ffcc00; border-radius: 4px;}
+            
+            QTableWidget { 
+                background-color: #1c1c1e; 
+                color: #e5e5ea; 
+                gridline-color: #3a3a3c; 
+                border: 1px solid #3a3a3c; 
+                border-radius: 10px; 
+                font-size: 13px;
+                selection-background-color: #3a3a3c;
+                selection-color: #ffffff;
+            }
+            QHeaderView::section { 
+                background-color: #2c2c2e; 
+                color: #ffcc00; 
+                font-weight: bold; 
+                padding: 10px 5px; 
+                border: none;
+                border-bottom: 2px solid #ffcc00; 
+            }
+            QTableWidget::item {
+                padding: 6px;
+                border-bottom: 1px solid #2c2c2e;
+            }
+            QMessageBox {
+                background-color: #2c2c2e;
+                color: #e5e5ea;
+                border: 1px solid #3a3a3c;
+            }
+            QMessageBox QPushButton {
+                min-width: 90px;
+                min-height: 35px;
+            }
+        """)
 
-        # Tab 2: Results
-        tab2 = self.create_results_tab()
-        tabs.addTab(tab2, "Sonuçlar")
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        main_layout = QVBoxLayout(central_widget)
+        main_layout.setSpacing(15)
 
-        layout.addWidget(tabs)
+        # ---------------------------------------------------------
+        # YAN YANA GİRİŞ ALANLARI (CV ve İş İlanı)
+        # ---------------------------------------------------------
+        h_layout = QHBoxLayout()
 
-        # Progress bar
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setVisible(False)
-        self.progress_bar.setFixedHeight(6)
-        self.progress_bar.setTextVisible(False)
-        layout.addWidget(self.progress_bar)
+        # SOL TARAF: CV Upload Group (Dikey Ortalanmış)
+        cv_group = QGroupBox("CV Dosyaları")
+        cv_layout = QVBoxLayout()
+        cv_layout.setAlignment(Qt.AlignCenter)
 
-        # Status label
-        self.status_label = QLabel("Hazır")
-        self.status_label.setStyleSheet("color: #4ade80; font-weight: bold; font-size: 12px;")
-        layout.addWidget(self.status_label)
+        self.btn_select_file = QPushButton("PDF Dosyalarını Seç")
+        self.btn_select_file.setMinimumHeight(50)
+        self.btn_select_file.setMinimumWidth(220)
+        self.btn_select_file.clicked.connect(self.select_files)
 
-    def create_input_tab(self):
-        """Create input tab"""
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
+        self.lbl_file_path = QLabel("Seçilen Dosya: Yok")
+        self.lbl_file_path.setStyleSheet("color: #8e8e93; font-weight: normal; font-style: italic; padding-top: 10px;")
+        self.lbl_file_path.setAlignment(Qt.AlignCenter)
 
-        # CV Upload Group
-        cv_group = QGroupBox("CV Dosyası")
-        cv_layout = QHBoxLayout()
-
-        self.cv_label = QLabel("Dosya seçilmedi")
-        self.cv_label.setStyleSheet("color: #9ca3af; padding: 10px;")
-
-        self.cv_button = QPushButton("PDF Dosyasını Yükle")
-        self.cv_button.setMinimumHeight(45)
-        self.cv_button.clicked.connect(self.load_cv)
-
-        cv_layout.addWidget(self.cv_label)
-        cv_layout.addWidget(self.cv_button)
+        cv_layout.addWidget(self.btn_select_file)
+        cv_layout.addWidget(self.lbl_file_path)
         cv_group.setLayout(cv_layout)
-        layout.addWidget(cv_group)
 
-        # Job Description Group
-        job_group = QGroupBox("İş İlanı Metni")
+        # SAĞ TARAF: Job Description Group
+        job_group = QGroupBox("İş İlanı Metni (İngilizce)")
         job_layout = QVBoxLayout()
 
         self.job_text_edit = QTextEdit()
-        self.job_text_edit.setPlaceholderText(
-            "İş ilanı metnini buraya yapıştırın veya yazın...\n\n"
-            "Örnek: We are looking for a Python developer with SQL and Machine Learning skills..."
-        )
-        self.job_text_edit.setMinimumHeight(250)
-
+        self.job_text_edit.setPlaceholderText("İlan detaylarını buraya yapıştırın...\n\nÖrnek: We are looking for a Data Scientist...")
+        self.job_text_edit.setMinimumHeight(150)
         job_layout.addWidget(self.job_text_edit)
         job_group.setLayout(job_layout)
-        layout.addWidget(job_group)
 
-        # Analyze button
-        self.analyze_button = QPushButton("Analiz Başlat")
-        self.analyze_button.setMinimumHeight(50)
-        self.analyze_button.setFont(QFont("Segoe UI", 12, QFont.Bold))
-        self.analyze_button.clicked.connect(self.start_analysis)
-        layout.addWidget(self.analyze_button)
+        # Ekrana yan yana (1'e 2 oranında) ekle
+        h_layout.addWidget(cv_group, 1)
+        h_layout.addWidget(job_group, 2)
+        
+        main_layout.addLayout(h_layout)
 
-        layout.addStretch()
-        return widget
+        # ---------------------------------------------------------
+        # ALT BUTONLAR (Analiz Başlat)
+        # ---------------------------------------------------------
+        control_layout = QHBoxLayout()
+        
+        self.btn_start = QPushButton("Analizi Başlat")
+        self.btn_start.setMinimumHeight(45)
+        self.btn_start.clicked.connect(self.start_analysis)
+        self.btn_start.setEnabled(False)
 
-    def create_results_tab(self):
-        """Create results tab"""
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
+        control_layout.addWidget(self.btn_start)
+        main_layout.addLayout(control_layout)
 
-        # Scores Group
-        scores_group = QGroupBox("Eşleşme Puanları")
-        scores_layout = QHBoxLayout()
+        # Yükleme Çubuğu (Daha ince ve modern)
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setValue(0)
+        self.progress_bar.setFixedHeight(8) 
+        self.progress_bar.setTextVisible(False)
+        main_layout.addWidget(self.progress_bar)
 
-        self.text_sim_label = QLabel("Metin Benzerliği: --")
-        self.text_sim_label.setFont(QFont("Segoe UI", 12, QFont.Bold))
-        self.text_sim_label.setStyleSheet("padding: 15px; background-color: #1e1e1e; border: 1px solid #333333; border-radius: 8px; color: #ffffff;")
-        self.text_sim_label.setAlignment(Qt.AlignCenter)
+        # ---------------------------------------------------------
+        # SONUÇ TABLOSU
+        # ---------------------------------------------------------
+        self.table = QTableWidget()
+        self.table.setColumnCount(4) 
+        self.table.setHorizontalHeaderLabels(["CV Dosya Adı", "TF-IDF Skoru (%)", "BERT Skoru (%)", "Nihai Skor (%)"])
+        
+        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        main_layout.addWidget(self.table)
 
-        self.skill_match_label = QLabel("Beceri Uyumu: --")
-        self.skill_match_label.setFont(QFont("Segoe UI", 12, QFont.Bold))
-        self.skill_match_label.setStyleSheet("padding: 15px; background-color: #1e1e1e; border: 1px solid #333333; border-radius: 8px; color: #ffffff;")
-        self.skill_match_label.setAlignment(Qt.AlignCenter)
-
-        scores_layout.addWidget(self.text_sim_label)
-        scores_layout.addWidget(self.skill_match_label)
-        scores_group.setLayout(scores_layout)
-        layout.addWidget(scores_group)
-
-        # Skills Tables
-        tables_layout = QHBoxLayout()
-
-        # Required Skills
-        req_skills_group = QGroupBox("Gereken Beceriler")
-        req_skills_layout = QVBoxLayout()
-        self.required_skills_table = QTableWidget()
-        self.required_skills_table.setColumnCount(1)
-        self.required_skills_table.setHorizontalHeaderLabels(["Beceri"])
-        self.required_skills_table.horizontalHeader().setStretchLastSection(True)
-        req_skills_layout.addWidget(self.required_skills_table)
-        req_skills_group.setLayout(req_skills_layout)
-        tables_layout.addWidget(req_skills_group)
-
-        # Found Skills
-        found_skills_group = QGroupBox("CV'de Bulunan Beceriler")
-        found_skills_layout = QVBoxLayout()
-        self.found_skills_table = QTableWidget()
-        self.found_skills_table.setColumnCount(1)
-        self.found_skills_table.setHorizontalHeaderLabels(["Beceri"])
-        self.found_skills_table.horizontalHeader().setStretchLastSection(True)
-        found_skills_layout.addWidget(self.found_skills_table)
-        found_skills_group.setLayout(found_skills_layout)
-        tables_layout.addWidget(found_skills_group)
-
-        # Missing Skills
-        missing_skills_group = QGroupBox("Eksik Beceriler")
-        missing_skills_layout = QVBoxLayout()
-        self.missing_skills_table = QTableWidget()
-        self.missing_skills_table.setColumnCount(1)
-        self.missing_skills_table.setHorizontalHeaderLabels(["Beceri"])
-        self.missing_skills_table.horizontalHeader().setStretchLastSection(True)
-        missing_skills_layout.addWidget(self.missing_skills_table)
-        missing_skills_group.setLayout(missing_skills_layout)
-        tables_layout.addWidget(missing_skills_group)
-
-        layout.addLayout(tables_layout)
-        return widget
-
-    def load_cv(self):
-        """Load CV from file"""
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, "PDF Dosyasını Seçin", "", "PDF Files (*.pdf)"
-        )
-
-        if file_path:
-            try:
-                self.cv_text = extract_text_from_pdf(file_path)
-                self.cv_label.setText(f"Yüklendi: {os.path.basename(file_path)}")
-                self.cv_label.setStyleSheet("color: #4ade80; padding: 10px; font-weight: bold;")
-                self.status_label.setText("CV yüklendi. İş ilanını yazın ve analiz başlatın.")
-                self.status_label.setStyleSheet("color: #4ade80; font-weight: bold;")
-            except Exception as e:
-                QMessageBox.critical(self, "Hata", f"PDF okunamadı:\n{str(e)}")
-                self.status_label.setText("PDF okuma hatası!")
-                self.status_label.setStyleSheet("color: #f87171; font-weight: bold;")
+    def select_files(self):
+        files, _ = QFileDialog.getOpenFileNames(self, "CV PDF Dosyalarını Seçin", "", "PDF Dosyaları (*.pdf)")
+        if files:
+            self.pdf_files = files
+            if len(files) == 1:
+                self.lbl_file_path.setText(f"Seçilen: {os.path.basename(files[0])}")
+                self.lbl_file_path.setStyleSheet("color: #ffcc00; font-weight: bold; padding-top: 10px;")
+            else:
+                self.lbl_file_path.setText(f"Seçilen: {len(files)} dosya")
+                self.lbl_file_path.setStyleSheet("color: #ffcc00; font-weight: bold; padding-top: 10px;")
+            self.btn_start.setEnabled(True)
 
     def start_analysis(self):
-        """Start analysis"""
-        self.job_text = self.job_text_edit.toPlainText().strip()
-
-        if not self.cv_text:
-            QMessageBox.warning(self, "Uyarı", "Lütfen önce CV dosyasını yükleyin!")
+        job_text = self.job_text_edit.toPlainText().strip()
+        
+        if not job_text:
+            QMessageBox.warning(self, "Eksik Bilgi", "Lütfen önce bir iş ilanı metni girin!")
             return
 
-        if not self.job_text:
-            QMessageBox.warning(self, "Uyarı", "Lütfen iş ilanı metnini yazın!")
-            return
-
-        self.progress_bar.setVisible(True)
+        self.table.setRowCount(0)
         self.progress_bar.setValue(0)
-        self.analyze_button.setEnabled(False)
-        self.status_label.setText("Analiz yapılıyor...")
-        self.status_label.setStyleSheet("color: #fbbf24; font-weight: bold;")
+        self.btn_start.setEnabled(False)
+        self.btn_select_file.setEnabled(False)
 
-        # Start worker thread
-        self.worker = AnalysisWorker(self.cv_text, self.job_text)
-        self.worker.progress.connect(self.on_progress)
-        self.worker.finished.connect(self.on_analysis_finished)
-        self.worker.error.connect(self.on_analysis_error)
+        self.worker = ProcessWorker(job_text, self.pdf_files)
+        self.worker.progress.connect(self.update_progress)
+        self.worker.result.connect(self.add_result_to_table)
+        self.worker.finished_signal.connect(self.analysis_finished)
         self.worker.start()
 
-    def on_progress(self, message):
-        """Update progress"""
-        self.status_label.setText(message)
-        self.progress_bar.setValue(self.progress_bar.value() + 25)
+    def update_progress(self, val):
+        self.progress_bar.setValue(val)
 
-    def on_analysis_finished(self, results):
-        """Display results"""
-        self.results = results
+    def add_result_to_table(self, filename, tfidf_score, bert_score, final_score):
+        row = self.table.rowCount()
+        self.table.insertRow(row)
 
-        # Update scores
-        text_sim = results["text_similarity"]
-        skill_match = results["skill_match"]
+        item_name = QTableWidgetItem(filename)
+        self.table.setItem(row, 0, item_name)
 
-        # Color coding for scores
-        text_sim_color = self.get_score_color(text_sim)
-        skill_match_color = self.get_score_color(skill_match)
+        # Skorlara göre dinamik renk ataması (Koyu temaya uyumlu)
+        scores = [tfidf_score, bert_score, final_score]
+        for col_index, score in enumerate(scores, start=1):
+            item_score = QTableWidgetItem(f"% {score:.2f}")
+            item_score.setTextAlignment(Qt.AlignCenter)
+            
+            font = QFont()
+            font.setBold(True)
+            item_score.setFont(font)
 
-        self.text_sim_label.setText(f"Metin Benzerliği: {text_sim:.2f}%")
-        self.text_sim_label.setStyleSheet(f"padding: 15px; background-color: {text_sim_color}; border-radius: 8px; color: #ffffff; font-weight: bold; border: none;")
+            if score >= 65.0:
+                bg_color = QColor("#198754")  # Yeşil
+                text_color = QColor("white")
+            elif score >= 40.0:
+                bg_color = QColor("#ffc107")  # Sarı
+                text_color = QColor("white")
+            else:
+                bg_color = QColor("#dc3545")  # Kırmızı
+                text_color = QColor("white")
 
-        self.skill_match_label.setText(f"Beceri Uyumu: {skill_match:.2f}%")
-        self.skill_match_label.setStyleSheet(f"padding: 15px; background-color: {skill_match_color}; border-radius: 8px; color: #ffffff; font-weight: bold; border: none;")
+            item_score.setBackground(bg_color)
+            item_score.setForeground(text_color)
+            self.table.setItem(row, col_index, item_score)
 
-        # Populate tables
-        self.populate_table(self.required_skills_table, results["required_skills"])
-        self.populate_table(self.found_skills_table, results["found_skills"])
-        self.populate_table(self.missing_skills_table, results["missing_skills"])
-
-        self.progress_bar.setVisible(False)
-        self.analyze_button.setEnabled(True)
-        self.status_label.setText("Analiz tamamlandı!")
-        self.status_label.setStyleSheet("color: #4ade80; font-weight: bold;")
-
-        QMessageBox.information(self, "Başarılı", "Analiz tamamlandı! Sonuçları 'Sonuçlar' sekmesinde görebilirsiniz.")
-
-    def on_analysis_error(self, error_message):
-        """Handle analysis error"""
-        self.progress_bar.setVisible(False)
-        self.analyze_button.setEnabled(True)
-        self.status_label.setText(error_message)
-        self.status_label.setStyleSheet("color: #f87171; font-weight: bold;")
-        QMessageBox.critical(self, "Hata", error_message)
-
-    def populate_table(self, table, items):
-        """Fill table with items"""
-        table.setRowCount(len(items))
-        for row, item in enumerate(items):
-            table.setItem(row, 0, QTableWidgetItem(item))
-
-    def get_score_color(self, score):
-        """Get color based on score (Dark theme optimized)"""
-        if score >= 75:
-            return "#16a34a"  # Modern Green
-        elif score >= 50:
-            return "#d97706"  # Modern Amber/Orange
-        else:
-            return "#dc2626"  # Modern Red
-
-    def get_stylesheet(self):
-        """Return custom modern dark stylesheet"""
-        return """
-        QMainWindow {
-            background-color: #121212;
-            color: #e0e0e0;
-        }
-        QWidget {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: #e0e0e0;
-        }
-        QGroupBox {
-            font-weight: bold;
-            font-size: 14px;
-            border: 1px solid #333333;
-            border-radius: 8px;
-            margin-top: 20px;
-            padding-top: 15px;
-            background-color: #1e1e1e;
-        }
-        QGroupBox::title {
-            subcontrol-origin: margin;
-            subcontrol-position: top left;
-            left: 15px;
-            padding: 0 5px;
-            color: #9ca3af;
-        }
-        QTextEdit, QTableWidget {
-            background-color: #121212;
-            color: #e0e0e0;
-            border: 1px solid #333333;
-            border-radius: 6px;
-            padding: 8px;
-            selection-background-color: #2563eb;
-        }
-        QHeaderView::section {
-            background-color: #2c2c2c;
-            color: #ffffff;
-            padding: 5px;
-            border: none;
-            border-bottom: 1px solid #444444;
-            font-weight: bold;
-        }
-        QTableWidget::item {
-            padding: 5px;
-            border-bottom: 1px solid #2a2a2a;
-        }
-        QPushButton {
-            background-color: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 15px;
-            font-weight: bold;
-        }
-        QPushButton:hover {
-            background-color: #3b82f6;
-        }
-        QPushButton:pressed {
-            background-color: #1d4ed8;
-        }
-        QPushButton:disabled {
-            background-color: #374151;
-            color: #9ca3af;
-        }
-        QTabWidget::pane {
-            border: 1px solid #333333;
-            background-color: #1e1e1e;
-            border-radius: 8px;
-        }
-        QTabBar::tab {
-            background-color: #121212;
-            color: #9ca3af;
-            padding: 12px 25px;
-            margin-right: 2px;
-            border-top-left-radius: 6px;
-            border-top-right-radius: 6px;
-            border: 1px solid #333333;
-            border-bottom: none;
-        }
-        QTabBar::tab:selected {
-            background-color: #1e1e1e;
-            color: #ffffff;
-            font-weight: bold;
-            border-bottom: 2px solid #2563eb;
-        }
-        QTabBar::tab:hover:!selected {
-            background-color: #1a1a1a;
-            color: #ffffff;
-        }
-        QProgressBar {
-            border: none;
-            background-color: #333333;
-            border-radius: 3px;
-        }
-        QProgressBar::chunk {
-            background-color: #3b82f6;
-            border-radius: 3px;
-        }
-        QMessageBox {
-            background-color: #1e1e1e;
-            color: #ffffff;
-        }
-        """
-
+    def analysis_finished(self):
+        self.btn_start.setEnabled(True)
+        self.btn_select_file.setEnabled(True)
+        
+        self.table.sortItems(3, Qt.DescendingOrder)
+        QMessageBox.information(self, "İşlem Tamam", "CV Analizi başarıyla tamamlandı!\nSonuçları tablodan inceleyebilirsiniz.")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = ResumeMatcherApp()
+    window = MainWindow()
     window.show()
     sys.exit(app.exec_())
