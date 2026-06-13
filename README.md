@@ -39,6 +39,7 @@ cv-uygunluk-karar-destek-sistemi/
 - README.md
 - .gitignore
 
+---
 
 
 ## Kurulum
@@ -55,12 +56,13 @@ Gerekli kütüphaneleri yüklemek için:
 
 Projenin çalışması için gerekli kütüphaneler:
 
-PyQt5
-pdfplumber
-scikit-learn
-sentence-transformers
-pandas
-openpyxl
+- PyQt5
+- pdfplumber
+- scikit-learn
+- sentence-transformers
+- pandas
+- openpyxl
+
 ---
 
 ## Çalıştırma
