@@ -1,9 +1,10 @@
 # CV Uygunluk Karar Destek Sistemi
 
-Bu proje, Python ile geliştirilmiş arayüzlü bir **CV - İş İlanı Uyum Analiz Sistemi**dir. Sistem, PDF formatındaki bir CV dosyasını okuyarak kullanıcının girdiği iş ilanı metniyle karşılaştırır ve kullanıcıya iki farklı analiz sonucu sunar:
+Bu proje, Python ile geliştirilmiş arayüzlü bir **CV - İş İlanı Uyum Analiz Sistemi**dir. Sistem, PDF formatındaki bir CV dosyasını okuyarak kullanıcının girdiği iş ilanı metniyle karşılaştırır ve kullanıcıya üç farklı analiz sonucu sunar:
 
-1. **Metin Benzerliği Skoru**
-2. **Beceri Uyumu Skoru**
+1. **TF-IDF Skoru**
+2. **BERT Skoru**
+3. **Nihai Skor**
 
 Proje, Bursa Uludağ Üniversitesi Mühendislik Fakültesi Bilgisayar Mühendisliği Bölümü **Python Programlamaya Giriş** dersi kapsamında hazırlanmıştır.
 
@@ -17,31 +18,13 @@ Sistem, PDF formatındaki CV dosyasından metin çıkarır, iş ilanı metniyle 
 
 ---
 
-## Temel Özellikler
 
-- PDF formatındaki CV dosyasından metin çıkarma
-- İş ilanı metnini kullanıcıdan alma
-- NLTK ile metin ön işleme
-- TF-IDF ve Cosine Similarity ile metin benzerliği hesaplama
-- Teknik beceri sözlüğü ile beceri eşleştirme
-- Eksik becerileri tablo halinde gösterme
-- PyQt5 ile modern karanlık temalı masaüstü arayüzü
-- Analizi arka planda çalıştırarak arayüzün donmasını engelleme
-
----
-
-## Kullanılan Teknolojiler
-
-| Teknoloji / Kütüphane | Kullanım Amacı |
-|---|---|
-| Python | Ana programlama dili |
-| PyQt5 | Grafiksel kullanıcı arayüzü |
-| PyPDF2 | PDF dosyasından metin çıkarma |
-| NLTK | Stop-word temizliği ve metin ön işleme |
-| scikit-learn | TF-IDF ve Cosine Similarity hesaplama |
-| pandas | Eksik becerilerin tablo halinde raporlanması |
-| re | Regex tabanlı metin temizleme ve beceri eşleştirme |
-| QThread | Analizi arka planda çalıştırma |
+## Kullanılan Teknolojiler ve Tercih Nedenleri
+* **Python:** Tüm sistemin temel programlama dili olarak esnekliği ve geniş kütüphane desteği nedeniyle tercih edilmiştir.
+* **Sentence-Transformers (BERT - `all-MiniLM-L6-v2`):** Sistemin ana beynidir. Sadece kelime saymak yerine "Software Developer" ile "Python Programmer" kavramlarının uzayda birbirine yakın olduğunu bilmesi ve anlamsal eşleşme yapabilmesi için entegre edilmiştir. Hafif ve çevrimdışı çalışabilen bir model olduğu için seçilmiştir.
+* **Scikit-learn (TF-IDF):** BERT modelinin bazen kaçırabileceği spesifik teknik terimleri (C#, .NET, React vb.) nokta atışı yakalamak ve sistemi hibrit (kelime + anlam) bir yapıya dönüştürmek için teknik danışman olarak kullanılmıştır.
+* **PyQt5 & QThread:** Kullanıcı arayüzünü (UI) modern ve karanlık temalı (Dark Mode) tasarlamak için kullanılmıştır. Ağır yapay zeka hesaplamalarının arayüzü dondurmasını engellemek amacıyla `worker.py` içinde asenkron iş parçacığı (QThread) mimarisi kurgulanmıştır.
+* **PDFPlumber & Pandas:** PDF'lerin içindeki görünmez karakterleri ve tabloları en stabil şekilde okuyabilmek için PDFPlumber; analiz sonuçlarını temiz bir şekilde Excel'e aktarabilmek için Pandas kullanılmıştır.
 
 ---
 
@@ -57,17 +40,6 @@ cv-uygunluk-karar-destek-sistemi/
 - .gitignore
 
 
----
-
-## Dosyaların Görevleri
-
-**main.py:** PyQt5 arayüzünü içerir. CV yükleme, iş ilanı girme ve sonuçları gösterme işlemleri burada yapılır.
-
-**utils.py:** PDF okuma, metin temizleme, TF-IDF hesaplama ve beceri eşleştirme fonksiyonlarını içerir.
-
-**worker.py:** Analizin arayüzü dondurmadan arka planda çalışmasını sağlar.
-
----
 
 ## Kurulum
 
@@ -83,12 +55,12 @@ Gerekli kütüphaneleri yüklemek için:
 
 Projenin çalışması için gerekli kütüphaneler:
 
-- PyQt5
-- PyPDF2
-- pandas
-- nltk
-- scikit-learn
-
+PyQt5
+pdfplumber
+scikit-learn
+sentence-transformers
+pandas
+openpyxl
 ---
 
 ## Çalıştırma
@@ -106,11 +78,6 @@ Program açıldıktan sonra:
 
 ---
 
-## Skorlar
-
-**Metin Benzerliği Skoru:** CV ve iş ilanı metinlerinin TF-IDF ve Cosine Similarity ile hesaplanan genel benzerlik skorudur.
-
-**Beceri Uyumu Skoru:** İş ilanında istenen teknik becerilerin kaç tanesinin CV’de bulunduğunu gösterir.
 
 ---
 
