@@ -1,44 +1,43 @@
+import os
 from PyQt5.QtCore import QThread, pyqtSignal
-# Üstteki utils dosyasından çekirdek NLP fonksiyonlarını içe aktarıyoruz
-from utils import clean_text, calculate_text_similarity, analyze_skills
+from utils import extract_text_from_pdf, preprocess_text, calculate_hybrid_similarity
 
+class ProcessWorker(QThread):
+    progress = pyqtSignal(int)
+    # Sinyali güncelledik: Dosya adı ve 3 ayrı float (sayısal) değer gönderecek
+    result = pyqtSignal(str, float, float, float)
+    finished_signal = pyqtSignal()
 
-class AnalysisWorker(QThread):
-    """Background thread for analysis to keep UI responsive"""
-    progress = pyqtSignal(str)
-    finished = pyqtSignal(dict)
-    error = pyqtSignal(str)
-
-    def __init__(self, cv_text, job_text):
+    def __init__(self, job_text, pdf_files):
         super().__init__()
-        self.cv_text = cv_text
         self.job_text = job_text
+        self.pdf_files = pdf_files
 
     def run(self):
-        try:
-            self.progress.emit("Text preprocessing başlanıyor...")
-            cleaned_cv = clean_text(self.cv_text)
-            cleaned_job = clean_text(self.job_text)
+        total_files = len(self.pdf_files)
 
-            self.progress.emit("TF-IDF similarity calculation...")
-            text_similarity = calculate_text_similarity(cleaned_cv, cleaned_job)
+        if total_files == 0:
+            self.finished_signal.emit()
+            return
 
-            self.progress.emit("Skill matching yapılıyor...")
-            required_skills, found_skills, missing_skills, skill_match_score, missing_df = analyze_skills(
-                cleaned_cv, cleaned_job
-            )
+        clean_job_text = preprocess_text(self.job_text)
 
-            results = {
-                "text_similarity": text_similarity,
-                "skill_match": skill_match_score,
-                "required_skills": required_skills,
-                "found_skills": found_skills,
-                "missing_skills": missing_skills,
-                "missing_df": missing_df
-            }
+        for i, file_path in enumerate(self.pdf_files):
+            filename = os.path.basename(file_path)
+            
+            raw_cv_text = extract_text_from_pdf(file_path)
+            clean_cv_text = preprocess_text(raw_cv_text)
 
-            self.progress.emit("Analiz tamamlandı!")
-            self.finished.emit(results)
+            if clean_cv_text:
+                # utils'den gelen 3 değeri alıyoruz
+                tfidf_score, bert_score, final_score = calculate_hybrid_similarity(clean_job_text, clean_cv_text)
+            else:
+                tfidf_score, bert_score, final_score = 0.0, 0.0, 0.0
 
-        except Exception as e:
-            self.error.emit(f"Hata: {str(e)}")
+            # Arayüze 3 skoru birden yolluyoruz
+            self.result.emit(filename, tfidf_score, bert_score, final_score)
+            
+            progress_percent = int(((i + 1) / total_files) * 100)
+            self.progress.emit(progress_percent)
+
+        self.finished_signal.emit()
