@@ -83,7 +83,7 @@ python main.py
 1. Program açıldığında **"PDF Dosyası Yükle"** butonuna tıklayarak analiz edilecek CV'leri (PDF) seçin.
 2. Alt kısımdaki metin kutusuna, aranılan **İş İlanı Metnini** (İngilizce) girin veya yapıştırın.
 3. **"Analiz Başlat"** butonuna tıklayın ve uygulamanın arka planda işlemi bitirmesini bekleyin.
-4. Sonuçları detaylı yüzdelik oranlar ve eksik beceriler tablosu halinde **"Sonuçlar"** sekmesinden inceleyebilirsiniz.
+4. Sonuçları detaylı yüzdelik oranlar tablosu halinde **"Sonuçlar"** sekmesinden inceleyebilirsiniz.
 
 ---
 
