@@ -49,43 +49,44 @@ Bu projeyi bilgisayarınızda sorunsuz bir şekilde çalıştırmak için aşağ
 #### Adım 1: Projeyi Bilgisayarınıza İndirin
 1. Bu sayfanın sağ üst köşesinde bulunan yeşil **"Code"** butonuna tıklayın.
 2. Açılan menüden **"Download ZIP"** seçeneğine tıklayarak projeyi bilgisayarınıza indirin.
-3. İnen ZIP dosyasını klasöre çıkartın (Örneğin, masaüstüne çıkartabilirsiniz).
+3. İnen ZIP dosyasını bilgisayarınızda bir klasöre çıkartın.
 
-#### Adım 2: Projeyi VS Code (veya Terminal) Üzerinde Açın
-1. Bilgisayarınızda **Visual Studio Code (VS Code)** uygulamasını açın.
-2. Üst menüden **File > Open Folder...** (Dosya > Klasör Aç...) yolunu izleyerek az önce çıkardığınız proje klasörünü seçin.
-3. Proje açıldıktan sonra, VS Code'un üst menüsünden **Terminal > New Terminal** (Yeni Terminal) seçeneğine tıklayarak alt kısımda bir terminal penceresi açın.
+#### Adım 2: Projeyi IDE Üzerinde Açın (VS Code veya PyCharm)
+1. Bilgisayarınızda **Visual Studio Code** veya **PyCharm** uygulamasını açın.
+2. Üst menüden **File > Open Folder...** (veya *Open*) yolunu izleyerek az önce projeyi çıkardığınız ana klasörü seçin.
+3. Proje açıldıktan sonra IDE'nin alt kısmında bulunan **Terminal** sekmesini açın (VS Code için üst menüden *Terminal > New Terminal* yolunu izleyebilirsiniz).
 
-#### Adım 3: Gerekli Kütüphanelerin Yüklenmesi
-Açtığınız terminal ekranına aşağıdaki komutu yazıp `Enter`'a basarak projenin çalışması için gereken Python kütüphanelerini kurun:
+#### Adım 3: Gerekli Kütüphanelerin Yüklenmesi (Önemli)
+Kurulum sırasında ortam değişkeni (PATH) veya sürüm hataları almamak için terminalde sırasıyla şu güvenli komutları çalıştırın:
 
+*(Not: Eğer Mac veya Linux kullanıyorsanız, aşağıdaki komutlarda `python` yerine `python3` yazınız.)*
+
+**Önce paket yükleyiciyi (pip) güncelleyin:**
 ```bash
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+```
+
+**Ardından projenin gereksinimlerini kurun:**
+```bash
+python -m pip install -r requirements.txt
 ```
 
 #### Adım 4: Uygulamayı Başlatma
-Kütüphanelerin kurulumu tamamlandıktan sonra, terminale aşağıdaki komutu yazıp `Enter`'a basarak uygulamayı çalıştırın:
-
-
+Tüm kütüphaneler yüklendikten sonra, aynı terminal ekranına aşağıdaki komutu yazıp `Enter`'a basarak uygulamayı çalıştırın:
 
 ```bash
 python main.py
-
 ```
 
+> ⚠️ **Önemli Not (İlk Çalıştırma Beklemesi):** Programı ilk kez başlattığınızda, yapay zeka analizleri için gerekli olan `all-MiniLM-L6-v2` dil modeli bir kereye mahsus HuggingFace üzerinden indirilecektir (Yaklaşık 90 MB). Bu nedenle **ilk açılışta kısa bir bekleme süresi olacaktır.** Model bilgisayarınıza kaydedildikten sonraki kullanımlarda sistem tamamen internetsiz (çevrimdışı) ve anında açılacaktır.
 
-
-> ⚠️ **Önemli Not (İlk Çalıştırma Beklemesi):** Programı ilk kez başlattığınızda, yapay zeka analizleri için gerekli olan `all-MiniLM-L6-v2` dil modeli arka planda bir kereye mahsus internetten indirilecektir (Yaklaşık 90 MB). Bu nedenle **ilk açılışta kısa bir bekleme süresi olacaktır.** Model bilgisayarınıza kaydedildikten sonraki kullanımlarda sistem tamamen internetsiz (çevrimdışı) ve anında açılacaktır.
-
-
+---
 
 ###  Nasıl Kullanılır?
 1. Program açıldığında **"PDF Dosyası Yükle"** butonuna tıklayarak analiz edilecek CV'leri (PDF) seçin.
 2. Alt kısımdaki metin kutusuna, aranılan **İş İlanı Metnini** (İngilizce) girin veya yapıştırın.
 3. **"Analiz Başlat"** butonuna tıklayın ve uygulamanın arka planda işlemi bitirmesini bekleyin.
 4. Sonuçları detaylı yüzdelik oranlar tablosu halinde **"Sonuçlar"** sekmesinden inceleyebilirsiniz.
-
----
 
 
 ## Veritabanı Bilgisi
