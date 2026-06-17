@@ -42,7 +42,7 @@ cv-uygunluk-karar-destek-sistemi/
 ---
 
 
-###  Kurulum ve Çalıştırma Rehberi
+###  ---Kurulum ve Çalıştırma Rehberi---
 
 Bu projeyi bilgisayarınızda sorunsuz bir şekilde çalıştırmak için aşağıdaki adımları sırasıyla izleyiniz.
 
