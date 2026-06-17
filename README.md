@@ -105,6 +105,6 @@ Bu projede harici bir veri seti kullanılmamıştır. Testler örnek CV dosyalar
 
 ## Grup Üyeleri
 
-- Abdullah Seydi
-- Osman Berkehan Toker
-- Alihan Yalçın
+- Abdullah Seydi-032190067
+- Osman Berkehan Toker-032290033
+- Alihan Yalçın-12703904400
