@@ -42,46 +42,51 @@ cv-uygunluk-karar-destek-sistemi/
 ---
 
 
-## Kurulum
+###  Kurulum ve Çalıştırma Rehberi
 
-Projeyi bilgisayarınıza indirdikten sonra proje klasöründe terminal açın.
+Bu projeyi bilgisayarınızda sorunsuz bir şekilde çalıştırmak için aşağıdaki adımları sırasıyla izleyiniz.
 
-Gerekli kütüphaneleri yüklemek için:
+#### Adım 1: Projeyi Bilgisayarınıza İndirin
+1. Bu sayfanın sağ üst köşesinde bulunan yeşil **"Code"** butonuna tıklayın.
+2. Açılan menüden **"Download ZIP"** seçeneğine tıklayarak projeyi bilgisayarınıza indirin.
+3. İnen ZIP dosyasını klasöre çıkartın (Örneğin, masaüstüne çıkartabilirsiniz).
 
-    pip install -r requirements.txt
+#### Adım 2: Projeyi VS Code (veya Terminal) Üzerinde Açın
+1. Bilgisayarınızda **Visual Studio Code (VS Code)** uygulamasını açın.
+2. Üst menüden **File > Open Folder...** (Dosya > Klasör Aç...) yolunu izleyerek az önce çıkardığınız proje klasörünü seçin.
+3. Proje açıldıktan sonra, VS Code'un üst menüsünden **Terminal > New Terminal** (Yeni Terminal) seçeneğine tıklayarak alt kısımda bir terminal penceresi açın.
+
+#### Adım 3: Gerekli Kütüphanelerin Yüklenmesi
+Açtığınız terminal ekranına aşağıdaki komutu yazıp `Enter`'a basarak projenin çalışması için gereken Python kütüphanelerini kurun:
+
+```bash
+pip install -r requirements.txt
+```
+
+#### Adım 4: Uygulamayı Başlatma
+Kütüphanelerin kurulumu tamamlandıktan sonra, terminale aşağıdaki komutu yazıp `Enter`'a basarak uygulamayı çalıştırın:
+
+
+
+```bash
+python main.py
+
+```
+
+
+
+> ⚠️ **Önemli Not (İlk Çalıştırma Beklemesi):** Programı ilk kez başlattığınızda, yapay zeka analizleri için gerekli olan `all-MiniLM-L6-v2` dil modeli arka planda bir kereye mahsus internetten indirilecektir (Yaklaşık 90 MB). Bu nedenle **ilk açılışta kısa bir bekleme süresi olacaktır.** Model bilgisayarınıza kaydedildikten sonraki kullanımlarda sistem tamamen internetsiz (çevrimdışı) ve anında açılacaktır.
+
+
+
+###  Nasıl Kullanılır?
+1. Program açıldığında **"PDF Dosyası Yükle"** butonuna tıklayarak analiz edilecek CV'leri (PDF) seçin.
+2. Alt kısımdaki metin kutusuna, aranılan **İş İlanı Metnini** (İngilizce) girin veya yapıştırın.
+3. **"Analiz Başlat"** butonuna tıklayın ve uygulamanın arka planda işlemi bitirmesini bekleyin.
+4. Sonuçları detaylı yüzdelik oranlar ve eksik beceriler tablosu halinde **"Sonuçlar"** sekmesinden inceleyebilirsiniz.
 
 ---
 
-## requirements.txt
-
-Projenin çalışması için gerekli kütüphaneler:
-
-- PyQt5
-- pdfplumber
-- scikit-learn
-- sentence-transformers
-- pandas
-- openpyxl
-
----
-
-## Çalıştırma
-
-Programı çalıştırmak için:
-
-    python main.py
-
-Program açıldıktan sonra:
-
-1. PDF dosyasını yükleyin.
-2. İş ilanı metnini ilgili alana yazın veya yapıştırın.
-3. Analiz Başlat butonuna tıklayın.
-4. Sonuçları Sonuçlar sekmesinden görüntüleyin.
-
----
-
-
----
 
 ## Veritabanı Bilgisi
 
