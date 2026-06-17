@@ -45,6 +45,8 @@ cv-uygunluk-karar-destek-sistemi/
 ###  ---Kurulum ve Çalıştırma Rehberi---
 
 Bu projeyi bilgisayarınızda sorunsuz bir şekilde çalıştırmak için aşağıdaki adımları sırasıyla izleyiniz.
+* Projenin ve yapay zeka modellerinin sorunsuz çalışabilmesi için bilgisayarınızda **Python 3.8 veya üzeri** bir sürümün yüklü olması gerekmektedir.
+
 
 #### Adım 1: Projeyi Bilgisayarınıza İndirin
 1. Bu sayfanın sağ üst köşesinde bulunan yeşil **"Code"** butonuna tıklayın.
